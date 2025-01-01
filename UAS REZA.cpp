@@ -1,6 +1,11 @@
 #include <iostream>
+#include <vector>
 #include <string>
+#include <algorithm>  
+#include <limits>     
+
 using namespace std;
+
 
 struct Produk {
     int id;
@@ -10,101 +15,90 @@ struct Produk {
 };
 
 
-void tambahProduk(Produk *&produk, int &jumlahProduk, int &kapasitas) {
-    if (jumlahProduk >= kapasitas) {
-        kapasitas *= 2;  
-        Produk *produkBaru = new Produk[kapasitas];  
+int idCounter = 1;
 
-        
-        for (int i = 0; i < jumlahProduk; i++) {
-            produkBaru[i] = produk[i];
-        }
 
-        delete[] produk;  
-        produk = produkBaru;  
+void tambahProduk(vector<Produk>& produkList) {
+    Produk produkBaru;
+    produkBaru.id = idCounter++; 
+
+    cout << "\nMasukkan Nama Produk: ";
+    cin.ignore(); 
+    getline(cin, produkBaru.nama);
+
+    cout << "Masukkan Harga Produk: ";
+    cin >> produkBaru.harga;
+    if (produkBaru.harga < 0) {
+        cout << "Harga tidak boleh negatif.\n";
+        return;
     }
 
-    cout << "\nMasukkan ID Produk: ";
-    cin >> produk[jumlahProduk].id;
-    cin.ignore();  
-    cout << "Masukkan Nama Produk: ";
-    getline(cin, produk[jumlahProduk].nama);
-    cout << "Masukkan Harga Produk: ";
-    cin >> produk[jumlahProduk].harga;
     cout << "Masukkan Stok Produk: ";
-    cin >> produk[jumlahProduk].stok;
+    cin >> produkBaru.stok;
+    if (produkBaru.stok < 0) {
+        cout << "Stok tidak boleh negatif.\n";
+        return;
+    }
 
-    jumlahProduk++;
-    cout << "Produk berhasil ditambahkan.\n";
+    produkList.push_back(produkBaru);
+    cout << "Produk berhasil ditambahkan dengan ID " << produkBaru.id << ".\n";
 }
 
 
-void tampilkanProduk(const Produk *produk, int jumlahProduk) {
-    if (jumlahProduk == 0) {
+void tampilkanProduk(const vector<Produk>& produkList) {
+    if (produkList.empty()) {
         cout << "Tidak ada produk yang terdaftar.\n";
     } else {
         cout << "\nDaftar Produk:\n";
-        for (int i = 0; i < jumlahProduk; i++) {
-            cout << "ID: " << produk[i].id << ", Nama: " << produk[i].nama
-                 << ", Harga: " << produk[i].harga << ", Stok: " << produk[i].stok << endl;
+        for (const auto& produk : produkList) {
+            cout << "ID: " << produk.id << ", Nama: " << produk.nama
+                 << ", Harga: " << produk.harga << ", Stok: " << produk.stok << endl;
         }
     }
 }
 
 
-void cariProdukById(const Produk *produk, int jumlahProduk) {
+void cariProdukById(const vector<Produk>& produkList) {
     int idCari;
     cout << "Masukkan ID Produk yang ingin dicari: ";
     cin >> idCari;
 
-    bool ditemukan = false;
-    for (int i = 0; i < jumlahProduk; i++) {
-        if (produk[i].id == idCari) {
-            cout << "\nProduk ditemukan:\n";
-            cout << "ID: " << produk[i].id << ", Nama: " << produk[i].nama
-                 << ", Harga: " << produk[i].harga << ", Stok: " << produk[i].stok << endl;
-            ditemukan = true;
-            break;
-        }
-    }
+    auto it = find_if(produkList.begin(), produkList.end(), [idCari](const Produk& p) {
+        return p.id == idCari;
+    });
 
-    if (!ditemukan) {
+    if (it != produkList.end()) {
+        cout << "\nProduk ditemukan:\n";
+        cout << "ID: " << it->id << ", Nama: " << it->nama
+             << ", Harga: " << it->harga << ", Stok: " << it->stok << endl;
+    } else {
         cout << "Produk dengan ID " << idCari << " tidak ditemukan.\n";
     }
 }
 
 
-void hapusProduk(Produk *&produk, int &jumlahProduk) {
+void hapusProduk(vector<Produk>& produkList) {
     int idHapus;
     cout << "Masukkan ID Produk yang ingin dihapus: ";
     cin >> idHapus;
 
-    bool ditemukan = false;
-    for (int i = 0; i < jumlahProduk; i++) {
-        if (produk[i].id == idHapus) {
-            
-            for (int j = i; j < jumlahProduk - 1; j++) {
-                produk[j] = produk[j + 1];
-            }
-            jumlahProduk--;
-            cout << "Produk dengan ID " << idHapus << " berhasil dihapus.\n";
-            ditemukan = true;
-            break;
-        }
-    }
+    auto it = find_if(produkList.begin(), produkList.end(), [idHapus](const Produk& p) {
+        return p.id == idHapus;
+    });
 
-    if (!ditemukan) {
+    if (it != produkList.end()) {
+        produkList.erase(it);  
+        cout << "Produk dengan ID " << idHapus << " berhasil dihapus.\n";
+    } else {
         cout << "Produk dengan ID " << idHapus << " tidak ditemukan.\n";
     }
 }
 
-int main() {
-    int kapasitas = 2;  
-    int jumlahProduk = 0;  
-    Produk *produk = new Produk[kapasitas];  
-    int pilihan;  
 
-    cout << "Selamat datang di Sistem Manajemen Produk PT Abadi\n";
+int main() {
+    vector<Produk> produkList;
+    int pilihan;
+    cout << "Selamat datang di Sistem Manajemen Produk PT Reza Mortasefi\n";
 
     while (true) {
         cout << "\nMenu:\n";
@@ -116,28 +110,27 @@ int main() {
         cout << "Pilih opsi (1-5): ";
         cin >> pilihan;
 
+       
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
         switch (pilihan) {
             case 1:
-                tambahProduk(produk, jumlahProduk, kapasitas);
+                tambahProduk(produkList);
                 break;
             case 2:
-                tampilkanProduk(produk, jumlahProduk);
+                tampilkanProduk(produkList);
                 break;
             case 3:
-                cariProdukById(produk, jumlahProduk);
+                cariProdukById(produkList);
                 break;
             case 4:
-                hapusProduk(produk, jumlahProduk);
+                hapusProduk(produkList);
                 break;
             case 5:
                 cout << "Terima kasih! Program selesai.\n";
-                delete[] produk;  
                 return 0;
             default:
                 cout << "Pilihan tidak valid, coba lagi.\n";
         }
     }
-
-    return 0;
 }
-
