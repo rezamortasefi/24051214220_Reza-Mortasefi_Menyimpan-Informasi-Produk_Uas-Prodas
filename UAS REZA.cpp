@@ -73,7 +73,7 @@ void cariProdukById(const Produk *produk, int jumlahProduk) {
     }
 }
 
-// Fungsi untuk menghapus produk berdasarkan ID
+
 void hapusProduk(Produk *&produk, int &jumlahProduk) {
     int idHapus;
     cout << "Masukkan ID Produk yang ingin dihapus: ";
@@ -82,7 +82,7 @@ void hapusProduk(Produk *&produk, int &jumlahProduk) {
     bool ditemukan = false;
     for (int i = 0; i < jumlahProduk; i++) {
         if (produk[i].id == idHapus) {
-            // Menggeser produk yang ada setelah produk yang dihapus
+            
             for (int j = i; j < jumlahProduk - 1; j++) {
                 produk[j] = produk[j + 1];
             }
